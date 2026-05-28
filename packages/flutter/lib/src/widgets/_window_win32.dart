@@ -34,6 +34,7 @@ import 'binding.dart';
 typedef HWND = ffi.Pointer<ffi.Void>;
 
 const int _WM_DESTROY = 0x0002;
+const int _WM_MOVE = 0x0003;
 const int _WM_SIZE = 0x0005;
 const int _WM_ACTIVATE = 0x0006;
 const int _WM_CLOSE = 0x0010;
@@ -381,6 +382,13 @@ class RegularWindowControllerWin32 extends RegularWindowController with WindowCo
 
   @override
   @internal
+  Offset get physicalPosition {
+    _ensureNotDestroyed();
+    return _Win32PlatformInterface.getWindowPhysicalPosition(_owner.allocator, windowHandle);
+  }
+
+  @override
+  @internal
   String get title {
     _ensureNotDestroyed();
     return _Win32PlatformInterface.getWindowTitle(_owner.allocator, windowHandle);
@@ -522,7 +530,7 @@ class RegularWindowControllerWin32 extends RegularWindowController with WindowCo
       _owner._removeMessageHandler(_handler);
       _delegate.onWindowDestroyed();
       return 0;
-    } else if (message == _WM_SIZE || message == _WM_ACTIVATE) {
+    } else if (message == _WM_SIZE || message == _WM_MOVE || message == _WM_ACTIVATE) {
       notifyListeners();
     }
     return null;
@@ -617,6 +625,13 @@ class DialogWindowControllerWin32 extends DialogWindowController with WindowCont
     final _ActualContentSize size = _Win32PlatformInterface.getWindowContentSize(windowHandle);
     final result = Size(size.width, size.height);
     return result;
+  }
+
+  @override
+  @internal
+  Offset get physicalPosition {
+    _ensureNotDestroyed();
+    return _Win32PlatformInterface.getWindowPhysicalPosition(_owner.allocator, windowHandle);
   }
 
   @override
@@ -736,7 +751,7 @@ class DialogWindowControllerWin32 extends DialogWindowController with WindowCont
       _owner._removeMessageHandler(_handler);
       _delegate.onWindowDestroyed();
       return 0;
-    } else if (message == _WM_SIZE || message == _WM_ACTIVATE) {
+    } else if (message == _WM_SIZE || message == _WM_MOVE || message == _WM_ACTIVATE) {
       notifyListeners();
     }
     return null;
@@ -1574,6 +1589,16 @@ class _Win32PlatformInterface {
     } finally {
       allocator.free(windowRect);
       allocator.free(parentOrigin);
+    }
+  }
+
+  static Offset getWindowPhysicalPosition(ffi.Allocator allocator, HWND windowHandle) {
+    final ffi.Pointer<_Win32Rect> windowRect = allocator<_Win32Rect>();
+    try {
+      getWindowRect(windowHandle, windowRect);
+      return Offset(windowRect.ref.left.toDouble(), windowRect.ref.top.toDouble());
+    } finally {
+      allocator.free(windowRect);
     }
   }
 }

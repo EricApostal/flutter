@@ -622,6 +622,12 @@ class RegularWindowControllerMacOS extends RegularWindowController with _WindowC
   bool get isActivated => _MacOSPlatformInterface.isActivated(windowHandle);
 
   @override
+  Offset get physicalPosition {
+    _ensureNotDestroyed();
+    return _MacOSPlatformInterface.getWindowPhysicalPosition(windowHandle).toOffset();
+  }
+
+  @override
   String get title => _MacOSPlatformInterface.getTitle(windowHandle);
 }
 
@@ -732,6 +738,12 @@ class DialogWindowControllerMacOS extends DialogWindowController with _WindowCon
 
   @override
   bool get isActivated => _MacOSPlatformInterface.isActivated(windowHandle);
+
+  @override
+  Offset get physicalPosition {
+    _ensureNotDestroyed();
+    return _MacOSPlatformInterface.getWindowPhysicalPosition(windowHandle).toOffset();
+  }
 
   @override
   String get title => _MacOSPlatformInterface.getTitle(windowHandle);
@@ -1099,6 +1111,9 @@ class _MacOSPlatformInterface {
 
   @Native<Bool Function(Pointer<Void>)>(symbol: 'InternalFlutter_Window_IsActivated')
   external static bool isActivated(Pointer<Void> windowHandle);
+
+  @Native<_Offset Function(Pointer<Void>)>(symbol: 'InternalFlutter_Window_GetPhysicalPosition')
+  external static _Offset getWindowPhysicalPosition(Pointer<Void> windowHandle);
 
   @Native<Void Function(Pointer<Void>)>(symbol: 'InternalFlutter_Window_UpdatePosition')
   external static void updateWindowPosition(Pointer<Void> windowHandle);

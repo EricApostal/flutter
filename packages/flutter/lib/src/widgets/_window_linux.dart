@@ -308,6 +308,10 @@ class RegularWindowControllerLinux extends RegularWindowController
   Size get contentSize => _window.getSize();
 
   @override
+  @internal
+  Offset get physicalPosition => _window.getPosition();
+
+  @override
   void destroy() {
     if (_destroyed) {
       return;
@@ -521,6 +525,10 @@ class DialogWindowControllerLinux extends DialogWindowController implements Wind
   @override
   @internal
   Size get contentSize => _window.getSize();
+
+  @override
+  @internal
+  Offset get physicalPosition => _window.getPosition();
 
   @override
   void destroy() {
@@ -1462,6 +1470,15 @@ class _GtkWindow extends _GtkContainer {
     return result;
   }
 
+  /// Get the current physical position of the window.
+  Offset getPosition() {
+    final ffi.Pointer<ffi.Int> position = _gMalloc0(ffi.sizeOf<ffi.Int>() * 2).cast<ffi.Int>();
+    _gtkWindowGetPosition(instance, position.elementAt(0), position.elementAt(1));
+    final result = Offset(position[0].toDouble(), position[1].toDouble());
+    _gFree(position);
+    return result;
+  }
+
   /// true if this window has keyboard focus.
   bool isActive() {
     return _gtkWindowIsActive(instance);
@@ -1563,6 +1580,15 @@ class _GtkWindow extends _GtkContainer {
     ffi.Pointer<ffi.NativeType> window,
     ffi.Pointer<ffi.Int> width,
     ffi.Pointer<ffi.Int> height,
+  );
+
+  @ffi.Native<
+    ffi.Void Function(ffi.Pointer<ffi.NativeType>, ffi.Pointer<ffi.Int>, ffi.Pointer<ffi.Int>)
+  >(symbol: 'gtk_window_get_position')
+  external static void _gtkWindowGetPosition(
+    ffi.Pointer<ffi.NativeType> window,
+    ffi.Pointer<ffi.Int> x,
+    ffi.Pointer<ffi.Int> y,
   );
 
   @ffi.Native<ffi.Bool Function(ffi.Pointer<ffi.NativeType>)>(symbol: 'gtk_window_is_active')

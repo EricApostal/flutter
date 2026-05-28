@@ -75,6 +75,19 @@ sealed class BaseWindowController extends ChangeNotifier {
   @internal
   Size get contentSize;
 
+  /// The current physical position of this window's top-left corner.
+  ///
+  /// The position is expressed in physical pixels in global screen
+  /// coordinates.
+  ///
+  /// Not all window controller types support a physical position.
+  ///
+  /// {@macro flutter.widgets.windowing.experimental}
+  @internal
+  Offset get physicalPosition {
+    throw UnsupportedError('Physical position is unsupported for $runtimeType.');
+  }
+
   /// Destroys this window.
   ///
   /// It is permissible to call this method multiple times.
@@ -1860,7 +1873,15 @@ class SatelliteWindow extends StatelessWidget {
   }
 }
 
-enum _WindowControllerAspect { contentSize, title, activated, maximized, minimized, fullscreen }
+enum _WindowControllerAspect {
+  contentSize,
+  physicalPosition,
+  title,
+  activated,
+  maximized,
+  minimized,
+  fullscreen,
+}
 
 /// Provides descendants with access to the [BaseWindowController] associated with
 /// the window that is being rendered.
@@ -1971,6 +1992,73 @@ class WindowScope extends InheritedModel<_WindowControllerAspect> {
   @internal
   static Size? maybeContentSizeOf(BuildContext context) =>
       _maybeOf(context, _WindowControllerAspect.contentSize)?.contentSize;
+
+  /// Returns [BaseWindowController.physicalPosition] of the nearest [WindowScope].
+  ///
+  /// {@macro flutter.widgets.windowing.windowScope.of}
+  ///
+  /// If the window associated with the controller does not support a physical
+  /// position, this method returns [Offset.zero].
+  ///
+  /// {@macro flutter.widgets.windowing.experimental}
+  ///
+  /// See also:
+  ///
+  /// * [BaseWindowController.physicalPosition], which returns the current
+  ///   physical position of the window.
+  /// * [of], which returns the [BaseWindowController] associated with the window.
+  @internal
+  static Offset physicalPositionOf(BuildContext context) {
+    final BaseWindowController controller = _of(context, _WindowControllerAspect.physicalPosition);
+    return switch (controller) {
+      RegularWindowController() => _physicalPositionOrZero(controller),
+      DialogWindowController() => _physicalPositionOrZero(controller),
+      TooltipWindowController() => Offset.zero,
+      PopupWindowController() => Offset.zero,
+      SatelliteWindowController() => _physicalPositionOrZero(controller),
+    };
+  }
+
+  /// Returns [BaseWindowController.physicalPosition] of the nearest
+  /// [WindowScope], or null if not found.
+  ///
+  /// If the window associated with the controller does not support a physical
+  /// position, this method returns [Offset.zero].
+  ///
+  /// {@macro flutter.widgets.windowing.experimental}
+  ///
+  /// See also:
+  ///
+  /// * [BaseWindowController.physicalPosition], which returns the current
+  ///   physical position of the window.
+  /// * [maybeOf], which returns the [BaseWindowController] associated with the
+  ///   window, or null if not found.
+  @internal
+  static Offset? maybePhysicalPositionOf(BuildContext context) {
+    final BaseWindowController? controller = _maybeOf(
+      context,
+      _WindowControllerAspect.physicalPosition,
+    );
+    if (controller == null) {
+      return null;
+    }
+
+    return switch (controller) {
+      RegularWindowController() => _physicalPositionOrZero(controller),
+      DialogWindowController() => _physicalPositionOrZero(controller),
+      TooltipWindowController() => Offset.zero,
+      PopupWindowController() => Offset.zero,
+      SatelliteWindowController() => _physicalPositionOrZero(controller),
+    };
+  }
+
+  static Offset _physicalPositionOrZero(BaseWindowController controller) {
+    try {
+      return controller.physicalPosition;
+    } on UnsupportedError {
+      return Offset.zero;
+    }
+  }
 
   /// Returns the title of the controller in the nearest [WindowScope].
   ///
@@ -2277,6 +2365,19 @@ class WindowScope extends InheritedModel<_WindowControllerAspect> {
           switch (dependency) {
             _WindowControllerAspect.contentSize =>
               controller.contentSize != oldWidget.controller.contentSize,
+            _WindowControllerAspect.physicalPosition => switch (controller) {
+              final RegularWindowController regular =>
+                _physicalPositionOrZero(regular) !=
+                    _physicalPositionOrZero(oldWidget.controller as RegularWindowController),
+              final DialogWindowController dialog =>
+                _physicalPositionOrZero(dialog) !=
+                    _physicalPositionOrZero(oldWidget.controller as DialogWindowController),
+              TooltipWindowController() => false,
+              PopupWindowController() => false,
+              final SatelliteWindowController satellite =>
+                _physicalPositionOrZero(satellite) !=
+                    _physicalPositionOrZero(oldWidget.controller as SatelliteWindowController),
+            },
             _WindowControllerAspect.title => switch (controller) {
               final RegularWindowController regular =>
                 regular.title != (oldWidget.controller as RegularWindowController).title,

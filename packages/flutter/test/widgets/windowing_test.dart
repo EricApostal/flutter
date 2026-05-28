@@ -37,6 +37,9 @@ class _StubRegularWindowController extends RegularWindowController {
   Size get contentSize => Size.zero;
 
   @override
+  Offset get physicalPosition => const Offset(10, 20);
+
+  @override
   String get title => 'Stub Window';
 
   @override
@@ -86,6 +89,9 @@ class _StubDialogWindowController extends DialogWindowController {
 
   @override
   Size get contentSize => Size.zero;
+
+  @override
+  Offset get physicalPosition => const Offset(30, 40);
 
   @override
   String get title => 'Stub Window';
@@ -176,6 +182,9 @@ class _StubSatelliteWindowController extends SatelliteWindowController {
 
   @override
   Size get contentSize => Size.zero;
+
+  @override
+  Offset get physicalPosition => const Offset(50, 60);
 
   @override
   String get title => 'Stub Satellite Window';
@@ -731,6 +740,226 @@ void main() {
         );
 
         expect(size, equals(Size.zero));
+      });
+
+      testWidgets('Can access WindowScope.physicalPositionOf for regular windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubRegularWindowController(tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          RegularWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.physicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(10, 20)));
+      });
+
+      testWidgets('Can access WindowScope.physicalPositionOf for dialog windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubDialogWindowController(tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          DialogWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.physicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(30, 40)));
+      });
+
+      testWidgets('Can access WindowScope.physicalPositionOf for tooltip windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubTooltipWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          TooltipWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.physicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(Offset.zero));
+      });
+
+      testWidgets('Can access WindowScope.physicalPositionOf for popup windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubPopupWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          PopupWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.physicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(Offset.zero));
+      });
+
+      testWidgets('Can access WindowScope.physicalPositionOf for satellite windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubSatelliteWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          SatelliteWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.physicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(50, 60)));
+      });
+
+      testWidgets('Can access WindowScope.maybePhysicalPositionOf for regular windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubRegularWindowController(tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          RegularWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.maybePhysicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(10, 20)));
+      });
+
+      testWidgets('Can access WindowScope.maybePhysicalPositionOf for dialog windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubDialogWindowController(tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          DialogWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.maybePhysicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(30, 40)));
+      });
+
+      testWidgets('Can access WindowScope.maybePhysicalPositionOf for tooltip windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubTooltipWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          TooltipWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.maybePhysicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(Offset.zero));
+      });
+
+      testWidgets('Can access WindowScope.maybePhysicalPositionOf for popup windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubPopupWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          PopupWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.maybePhysicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(Offset.zero));
+      });
+
+      testWidgets('Can access WindowScope.maybePhysicalPositionOf for satellite windows', (
+        WidgetTester tester,
+      ) async {
+        final controller = _StubSatelliteWindowController(tester: tester);
+        Offset? position;
+        addTearDown(controller.dispose);
+        await tester.pumpWidget(
+          wrapWithView: false,
+          SatelliteWindow(
+            controller: controller,
+            child: Builder(
+              builder: (BuildContext context) {
+                position = WindowScope.maybePhysicalPositionOf(context);
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        );
+
+        expect(position, equals(const Offset(50, 60)));
       });
 
       testWidgets('Can access WindowScope.titleOf for regular windows', (

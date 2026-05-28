@@ -699,6 +699,20 @@ bool InternalFlutter_Window_IsActivated(void* window) {
   return w.isKeyWindow;
 }
 
+FlutterWindowOffset InternalFlutter_Window_GetPhysicalPosition(void* window) {
+  NSWindow* w = (__bridge NSWindow*)window;
+  NSRect globalScreenFrame = ComputeGlobalScreenFrame();
+  NSRect frame = w.frame;
+  FlipRect(frame, globalScreenFrame);
+
+  NSScreen* screen = w.screen ?: NSScreen.mainScreen;
+  const CGFloat scale = screen != nil ? screen.backingScaleFactor : 1.0;
+  return {
+      .x = frame.origin.x * scale,
+      .y = frame.origin.y * scale,
+  };
+}
+
 void InternalFlutter_Window_UpdatePosition(void* window) {
   NSWindow* w = (__bridge NSWindow*)window;
   FlutterWindowOwner* owner = (FlutterWindowOwner*)w.delegate;

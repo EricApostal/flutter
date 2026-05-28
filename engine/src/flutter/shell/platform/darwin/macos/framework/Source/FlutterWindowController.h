@@ -161,6 +161,9 @@ FLUTTER_DARWIN_EXPORT
 bool InternalFlutter_Window_IsActivated(void* window);
 
 FLUTTER_DARWIN_EXPORT
+FlutterWindowOffset InternalFlutter_Window_GetPhysicalPosition(void* window);
+
+FLUTTER_DARWIN_EXPORT
 void InternalFlutter_Window_UpdatePosition(void* window);
 
 FLUTTER_DARWIN_EXPORT
