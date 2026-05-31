@@ -204,6 +204,14 @@ InternalFlutterWindows_WindowManager_GetWindowContentSize(HWND hwnd) {
   return flutter::HostWindow::GetWindowContentSize(hwnd);
 }
 
+POINT InternalFlutterWindows_WindowManager_GetWindowPhysicalPosition(HWND hwnd) {
+  RECT rect = {0, 0, 0, 0};
+  if (!GetWindowRect(hwnd, &rect)) {
+    return POINT{0, 0};
+  }
+  return POINT{rect.left, rect.top};
+}
+
 void InternalFlutterWindows_WindowManager_SetWindowSize(
     HWND hwnd,
     const flutter::WindowSizeRequest* size) {

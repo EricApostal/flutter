@@ -384,7 +384,7 @@ class RegularWindowControllerWin32 extends RegularWindowController with WindowCo
   @internal
   Offset get physicalPosition {
     _ensureNotDestroyed();
-    return _Win32PlatformInterface.getWindowPhysicalPosition(_owner.allocator, windowHandle);
+    return _Win32PlatformInterface.getWindowPhysicalPosition(windowHandle);
   }
 
   @override
@@ -631,7 +631,7 @@ class DialogWindowControllerWin32 extends DialogWindowController with WindowCont
   @internal
   Offset get physicalPosition {
     _ensureNotDestroyed();
-    return _Win32PlatformInterface.getWindowPhysicalPosition(_owner.allocator, windowHandle);
+    return _Win32PlatformInterface.getWindowPhysicalPosition(windowHandle);
   }
 
   @override
@@ -1563,6 +1563,11 @@ class _Win32PlatformInterface {
   @ffi.Native<ffi.Bool Function(HWND, ffi.Pointer<_Win32Rect>)>(symbol: 'GetWindowRect')
   external static bool getWindowRect(HWND windowHandle, ffi.Pointer<_Win32Rect> rect);
 
+  @ffi.Native<_Win32Point Function(HWND)>(
+    symbol: 'InternalFlutterWindows_WindowManager_GetWindowPhysicalPosition',
+  )
+  external static _Win32Point _getWindowPhysicalPosition(HWND windowHandle);
+
   @ffi.Native<ffi.Bool Function(HWND, ffi.Pointer<_Win32Point>)>(symbol: 'ClientToScreen')
   external static bool clientToScreen(HWND windowHandle, ffi.Pointer<_Win32Point> point);
 
@@ -1592,14 +1597,9 @@ class _Win32PlatformInterface {
     }
   }
 
-  static Offset getWindowPhysicalPosition(ffi.Allocator allocator, HWND windowHandle) {
-    final ffi.Pointer<_Win32Rect> windowRect = allocator<_Win32Rect>();
-    try {
-      getWindowRect(windowHandle, windowRect);
-      return Offset(windowRect.ref.left.toDouble(), windowRect.ref.top.toDouble());
-    } finally {
-      allocator.free(windowRect);
-    }
+  static Offset getWindowPhysicalPosition(HWND windowHandle) {
+    final _Win32Point position = _getWindowPhysicalPosition(windowHandle);
+    return Offset(position.x.toDouble(), position.y.toDouble());
   }
 }
 

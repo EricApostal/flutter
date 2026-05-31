@@ -197,6 +197,9 @@ flutter::ActualWindowSize
 InternalFlutterWindows_WindowManager_GetWindowContentSize(HWND hwnd);
 
 FLUTTER_EXPORT
+POINT InternalFlutterWindows_WindowManager_GetWindowPhysicalPosition(HWND hwnd);
+
+FLUTTER_EXPORT
 void InternalFlutterWindows_WindowManager_SetWindowSize(
     HWND hwnd,
     const flutter::WindowSizeRequest* size);
