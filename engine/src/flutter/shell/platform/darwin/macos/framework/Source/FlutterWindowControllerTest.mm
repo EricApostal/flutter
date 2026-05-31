@@ -442,4 +442,30 @@ TEST_F(FlutterWindowControllerTest, GetOffsetInParent) {
   [childWindow close];
   [parentWindow close];
 }
+
+TEST_F(FlutterWindowControllerTest, GetPhysicalPosition) {
+  NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 100, 100)
+                                                 styleMask:NSWindowStyleMaskTitled
+                                                   backing:NSBackingStoreBuffered
+                                                     defer:NO];
+  [window setReleasedWhenClosed:NO];
+  [window setFrame:NSMakeRect(120, 160, 100, 100) display:NO];
+
+  FlutterWindowOffset offset = InternalFlutter_Window_GetPhysicalPosition((__bridge void*)window);
+
+  NSScreen* screen = window.screen ?: NSScreen.mainScreen;
+  NSRect globalScreenFrame = NSZeroRect;
+  for (NSScreen* currentScreen in [NSScreen screens]) {
+    globalScreenFrame = NSUnionRect(globalScreenFrame, currentScreen.frame);
+  }
+
+  NSRect frame = window.frame;
+  frame.origin.y = NSMaxY(globalScreenFrame) - NSMaxY(frame);
+
+  const CGFloat scale = screen != nil ? screen.backingScaleFactor : 1.0;
+  EXPECT_NEAR(offset.x, frame.origin.x * scale, 0.001);
+  EXPECT_NEAR(offset.y, frame.origin.y * scale, 0.001);
+
+  [window close];
+}
 }  // namespace flutter::testing
