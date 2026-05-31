@@ -125,24 +125,24 @@ TEST_F(WindowManagerTest, GetWindowSize) {
 }
 
 TEST_F(WindowManagerTest, GetWindowPhysicalPosition) {
-    IsolateScope isolate_scope(isolate());
+  IsolateScope isolate_scope(isolate());
 
-    const int64_t view_id =
-            InternalFlutterWindows_WindowManager_CreateRegularWindow(
-                    engine_id(), regular_creation_request());
-    const HWND window_handle =
-            InternalFlutterWindows_WindowManager_GetTopLevelWindowHandle(engine_id(),
-                                                                                                                                     view_id);
+  const int64_t view_id =
+      InternalFlutterWindows_WindowManager_CreateRegularWindow(
+          engine_id(), regular_creation_request());
+  const HWND window_handle =
+      InternalFlutterWindows_WindowManager_GetTopLevelWindowHandle(engine_id(),
+                                                                   view_id);
 
-    RECT rect = {0, 0, 0, 0};
-    EXPECT_TRUE(GetWindowRect(window_handle, &rect));
+  RECT rect = {0, 0, 0, 0};
+  EXPECT_TRUE(GetWindowRect(window_handle, &rect));
 
-    const POINT position =
-            InternalFlutterWindows_WindowManager_GetWindowPhysicalPosition(
-                    window_handle);
+  const POINT position =
+      InternalFlutterWindows_WindowManager_GetWindowPhysicalPosition(
+          window_handle);
 
-    EXPECT_EQ(position.x, rect.left);
-    EXPECT_EQ(position.y, rect.top);
+  EXPECT_EQ(position.x, rect.left);
+  EXPECT_EQ(position.y, rect.top);
 }
 
 TEST_F(WindowManagerTest, SetWindowSize) {
